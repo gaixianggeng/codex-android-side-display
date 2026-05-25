@@ -1,0 +1,4 @@
+interface:
+  display_name: "Codex 侧屏部署"
+  short_description: "部署 Android 黑胶侧屏与本地 Codex/Spotify sidecar。"
+  default_prompt: "把 Android 侧屏应用和本地 sidecar 部署到连接的设备上。"

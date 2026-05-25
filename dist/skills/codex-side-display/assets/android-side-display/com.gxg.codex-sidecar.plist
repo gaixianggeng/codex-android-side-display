@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+    "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.gxg.codex-sidecar</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>__PYTHON_BIN__</string>
+        <string>__APP_DIR__/status_server.py</string>
+        <string>--host</string>
+        <string>0.0.0.0</string>
+        <string>--port</string>
+        <string>__PORT__</string>
+    </array>
+
+    <key>WorkingDirectory</key>
+    <string>__APP_DIR__</string>
+
+    <key>RunAtLoad</key>
+    <true/>
+
+    <key>KeepAlive</key>
+    <true/>
+
+    <key>StandardOutPath</key>
+    <string>__APP_DIR__/status_server.out.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>__APP_DIR__/status_server.err.log</string>
+
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>ADB_BIN</key>
+        <string>__ADB_BIN__</string>
+    </dict>
+</dict>
+</plist>
