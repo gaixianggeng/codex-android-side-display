@@ -1,13 +1,13 @@
 # Codex Android Side Display
 
-A native Android side-display app for turning an old or idle Android tablet into a dedicated sidecar display for Spotify playback, album art, and real Codex usage. The repository includes the Android app, a local Python sidecar, and a packaged skill that can be used by agents such as OpenClaw, Hermes, or Codex to reproduce the deployment.
+A native Android side-display app for turning an old or idle Android tablet into a dedicated sidecar display for Spotify or Apple Music playback, album art, and real Codex usage. The repository includes the Android app, a local Python sidecar, and a packaged skill that can be used by agents such as OpenClaw, Hermes, or Codex to reproduce the deployment.
 
 ![Latest tablet screenshot](docs/screenshot.png)
 
 ## Features
 
 - Turns an unused Android tablet into a useful always-on desk display.
-- Shows the Spotify icon, track, artist, album, playback progress, and album art.
+- Shows the Spotify or Apple Music icon, track, artist, album, playback progress, and album art.
 - Shows real Codex account usage, including the `5 hour` and `1 week` remaining limits and reset times.
 - Adapts between landscape and portrait layouts.
 - Supports both USB `adb reverse` and local network access.
@@ -30,7 +30,7 @@ Requirements:
 - Android SDK build-tools and platform packages.
 - JDK 17.
 - Codex Desktop or Codex CLI. The default Codex binary path is `/Applications/Codex.app/Contents/Resources/codex`.
-- Spotify is optional. Codex data still works when Spotify is not running.
+- Spotify and Apple Music are optional playback sources. Codex data still works when no music app is running.
 
 Build the APK:
 

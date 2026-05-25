@@ -1,13 +1,13 @@
 # Codex Android 侧屏
 
-一个原生 Android 侧屏应用，重点是把老旧或闲置的 Android 平板改造成常驻 sidecar 展示屏，用来显示 Spotify 当前播放、专辑封面和 Codex 真实用量。项目包含 Android app、本地 Python sidecar，以及可给 OpenClaw、Hermes、Codex 等大模型直接复现部署的 skill 包。
+一个原生 Android 侧屏应用，重点是把老旧或闲置的 Android 平板改造成常驻 sidecar 展示屏，用来显示 Spotify 或 Apple Music 当前播放、专辑封面和 Codex 真实用量。项目包含 Android app、本地 Python sidecar，以及可给 OpenClaw、Hermes、Codex 等大模型直接复现部署的 skill 包。
 
 ![最新平板截图](docs/screenshot.png)
 
 ## 功能
 
 - 让闲置 Android 平板重新变成桌面信息屏，而不是继续吃灰。
-- Spotify 图标、歌曲、歌手、专辑、播放进度与专辑封面展示。
+- Spotify / Apple Music 图标、歌曲、歌手、专辑、播放进度与专辑封面展示。
 - Codex 真实账户用量展示，包含 `5 小时` 与 `1 周` 剩余量和重置时间。
 - 横屏与竖屏自适应布局。
 - 支持 USB `adb reverse` 和局域网访问两种连接方式。
@@ -30,7 +30,7 @@
 - Android SDK build-tools 与 platform。
 - JDK 17。
 - Codex Desktop 或 Codex CLI，默认读取 `/Applications/Codex.app/Contents/Resources/codex`。
-- Spotify 可选；没有 Spotify 时仍会展示 Codex 数据。
+- Spotify 和 Apple Music 都是可选播放源；没有音乐 App 时仍会展示 Codex 数据。
 
 构建 APK：
 

@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 import argparse
 import base64
+import binascii
 import json
 import os
+import re
 import select
 import socket
 import subprocess
@@ -491,6 +493,54 @@ def update_spotify_art(url):
         })
 
 
+def update_apple_music_art(track, artist, album):
+    cache_key = "apple_music:%s:%s:%s" % (track, artist, album)
+    with SPOTIFY_LOCK:
+        if SPOTIFY_ART["url"] == cache_key and SPOTIFY_ART["bytes"]:
+            return cache_key
+
+    try:
+        result = subprocess.run(
+            ["osascript", "-e", 'tell application "Music" to get raw data of artwork 1 of current track'],
+            check=False,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            timeout=2.5,
+        )
+    except Exception:
+        return ""
+
+    if result.returncode != 0 or not result.stdout:
+        return ""
+
+    text = result.stdout.decode("utf-8", "ignore")
+    payload = text.split("tdta", 1)[1] if "tdta" in text else text
+    hex_data = "".join(re.findall(r"[0-9A-Fa-f]+", payload))
+    if len(hex_data) % 2 == 1:
+        hex_data = hex_data[:-1]
+
+    try:
+        data = binascii.unhexlify(hex_data)
+    except Exception:
+        return ""
+
+    if data.startswith(b"\x89PNG\r\n\x1a\n"):
+        content_type = "image/png"
+    elif data.startswith(b"\xff\xd8\xff"):
+        content_type = "image/jpeg"
+    else:
+        content_type = "application/octet-stream"
+
+    with SPOTIFY_LOCK:
+        SPOTIFY_ART.update({
+            "url": cache_key,
+            "content_type": content_type,
+            "bytes": data,
+            "fetched_at": time.time(),
+        })
+    return cache_key
+
+
 def read_apple_music():
     if not app_running("Music"):
         return {
@@ -566,6 +616,7 @@ def read_apple_music():
     except Exception:
         position_ms = 0
     progress = min(100, int(round(position_ms * 100.0 / duration))) if duration else 0
+    artwork_key = update_apple_music_art(track, artist, album)
 
     return {
         "available": state not in ("stopped", ""),
@@ -578,9 +629,9 @@ def read_apple_music():
         "duration_ms": duration,
         "position_ms": position_ms,
         "progress_percent": progress,
-        "artwork_available": False,
-        "artwork_endpoint": None,
-        "artwork_key": "",
+        "artwork_available": bool(artwork_key),
+        "artwork_endpoint": "/spotify-art" if artwork_key else None,
+        "artwork_key": artwork_key,
     }
 
 

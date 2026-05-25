@@ -9,7 +9,7 @@
 
 Android app 轮询 `http://<host>:8765/status`，展示：
 
-- Spotify 当前播放、进度、专辑封面。
+- Spotify 或 Apple Music 当前播放、进度、专辑封面。
 - Codex 本地线程 token。
 - Codex 真实账户限额：`5 小时` 和 `1 周`，来自本机 Codex app-server 的 `account/rateLimits/read`。
 
@@ -23,7 +23,7 @@ Android app 轮询 `http://<host>:8765/status`，展示：
 - JDK 17，默认查找 `/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home`。
 - `adb`。
 - Codex CLI 或 Codex Desktop app，默认路径 `/Applications/Codex.app/Contents/Resources/codex`。
-- Spotify 可选；没有 Spotify 时 app 仍可显示 Codex 数据。
+- Spotify 和 Apple Music 可选；没有音乐 App 时 app 仍可显示 Codex 数据。
 
 Android 侧：
 

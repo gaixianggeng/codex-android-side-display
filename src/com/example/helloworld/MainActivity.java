@@ -91,6 +91,8 @@ public class MainActivity extends Activity {
     private boolean stopped;
     private boolean powerReceiverRegistered;
     private VinylView vinylView;
+    private Bitmap spotifySourceIcon;
+    private Bitmap appleMusicSourceIcon;
     private String lastArtworkKey = "";
     private String activeBaseUrl = BASE_URLS[0];
 
@@ -190,9 +192,10 @@ public class MainActivity extends Activity {
 
         topSourceIcon = new ImageView(this);
         topSourceIcon.setScaleType(ImageView.ScaleType.FIT_CENTER);
-        Bitmap spotifyIcon = loadAssetBitmap("spotify_icon.png");
-        if (spotifyIcon != null) {
-            topSourceIcon.setImageBitmap(spotifyIcon);
+        spotifySourceIcon = loadAssetBitmap("spotify_icon.png");
+        appleMusicSourceIcon = loadAssetBitmap("apple_music_icon.png");
+        if (spotifySourceIcon != null) {
+            topSourceIcon.setImageBitmap(spotifySourceIcon);
         }
         LinearLayout.LayoutParams topBadgeParams = new LinearLayout.LayoutParams(dp(28), dp(28));
         topBadgeParams.setMargins(0, 0, dp(8), 0);
@@ -966,6 +969,15 @@ public class MainActivity extends Activity {
             sourceValue.setBackground(sourceBackground(background));
         }
         if (topSourceIcon != null) {
+            Bitmap sourceIcon = null;
+            if ("spotify".equals(normalized)) {
+                sourceIcon = spotifySourceIcon;
+            } else if ("apple_music".equals(normalized) || "music".equals(normalized)) {
+                sourceIcon = appleMusicSourceIcon;
+            }
+            if (sourceIcon != null) {
+                topSourceIcon.setImageBitmap(sourceIcon);
+            }
             topSourceIcon.setAlpha(active ? 1.0f : 0.45f);
         }
         if (topSourceNameValue != null) {
@@ -1006,7 +1018,7 @@ public class MainActivity extends Activity {
             public void run() {
                 HttpURLConnection connection = null;
                 try {
-                    URL url = new URL(activeBaseUrl + "/spotify-art?key=" + key);
+                    URL url = new URL(activeBaseUrl + "/spotify-art");
                     connection = (HttpURLConnection) url.openConnection();
                     connection.setConnectTimeout(1500);
                     connection.setReadTimeout(2500);

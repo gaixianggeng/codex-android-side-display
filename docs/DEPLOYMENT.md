@@ -103,9 +103,9 @@ account/rateLimits/read
 
 所有安装、启动和截图命令都要带 `-s <设备序列号>`。
 
-### Spotify 图标或封面不显示
+### Spotify 或 Apple Music 图标/封面不显示
 
-Spotify 图标来自 `assets/spotify_icon.png`。专辑封面来自 Spotify 当前曲目的 artwork URL，由 sidecar 缓存后通过 `/spotify-art` 提供。
+Spotify 图标来自 `assets/spotify_icon.png`，Apple Music 图标来自 `assets/apple_music_icon.png`。Spotify 专辑封面来自当前曲目的 artwork URL；Apple Music 专辑封面来自 macOS Music app 的当前曲目 artwork raw data。sidecar 会缓存当前播放源封面，并通过 `/spotify-art` 提供给 Android app。
 
 ### LaunchAgent 路径不对
 

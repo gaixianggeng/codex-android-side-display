@@ -2,9 +2,9 @@
 
 [中文](README.zh-CN.md) | [English](README.en.md)
 
-An Android side-display app for turning an old or idle Android tablet into a dedicated sidecar display for Spotify playback, album art, and real Codex usage.
+An Android side-display app for turning an old or idle Android tablet into a dedicated sidecar display for Spotify or Apple Music playback, album art, and real Codex usage.
 
-一个 Android 侧屏应用，重点是把老旧或闲置的 Android 平板改造成常驻 sidecar 展示屏，用来展示 Spotify 当前播放、专辑封面和 Codex 真实用量。
+一个 Android 侧屏应用，重点是把老旧或闲置的 Android 平板改造成常驻 sidecar 展示屏，用来展示 Spotify 或 Apple Music 当前播放、专辑封面和 Codex 真实用量。
 
 ![Latest tablet screenshot](docs/screenshot.png)
 

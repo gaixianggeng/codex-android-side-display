@@ -1,6 +1,6 @@
 ---
 name: codex-side-display
-description: Deploy and maintain a native Android side-display app plus a local Python sidecar that shows Spotify playback, album art, and real Codex account usage/rate-limit data. Use when the user asks to install, package, deploy, run, debug, or adapt this Android black-vinyl Codex/Spotify status screen on connected Android devices, or when preparing the project for OpenClaw, Hermes, Codex, or another coding agent to reproduce the deployment.
+description: Deploy and maintain a native Android side-display app plus a local Python sidecar that shows Spotify or Apple Music playback, album art, and real Codex account usage/rate-limit data. Use when the user asks to install, package, deploy, run, debug, or adapt this Android black-vinyl Codex/music status screen on connected Android devices, or when preparing the project for OpenClaw, Hermes, Codex, or another coding agent to reproduce the deployment.
 ---
 
 # Codex 侧屏部署
@@ -10,7 +10,7 @@ description: Deploy and maintain a native Android side-display app plus a local 
 1. 读取 `references/deployment.md`，确认目标机器是否有 Android SDK、ADB、Python 3、Codex CLI/desktop app、Spotify。
 2. 使用 `scripts/deploy_side_display.py` 从 `assets/android-side-display/` 复制模板项目，自动写入当前局域网 IP，启动 sidecar，构建 APK，并安装到指定 Android 设备。
 3. 多台设备同时连接时，先运行 `adb devices -l`，再把序列号传给 `--device`。
-4. 安装后截图验证：界面应显示真实 Spotify 信息、专辑封面、Codex `5 小时` 与 `1 周` 剩余用量。
+4. 安装后截图验证：界面应显示真实 Spotify 或 Apple Music 信息、专辑封面、Codex `5 小时` 与 `1 周` 剩余用量。
 
 ## 常用命令
 

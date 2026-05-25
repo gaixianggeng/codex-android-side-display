@@ -13,8 +13,10 @@ status-window.xml
 # 本地调试截图和临时媒体，只保留 README 使用的最新截图和 Spotify 图标。
 *.png
 !assets/spotify_icon.png
+!assets/apple_music_icon.png
 !docs/screenshot.png
 !dist/skills/codex-side-display/assets/android-side-display/assets/spotify_icon.png
+!dist/skills/codex-side-display/assets/android-side-display/assets/apple_music_icon.png
 
 spotify-art-test
 spotify-art-query-test
