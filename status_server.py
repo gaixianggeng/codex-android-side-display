@@ -645,6 +645,23 @@ def read_playback():
     return spotify
 
 
+def safe_read_playback():
+    try:
+        return read_playback()
+    except Exception as exception:
+        return {
+            "available": False,
+            "source_id": "unknown",
+            "source_name": "Playback",
+            "state": "error",
+            "track": str(exception)[:160] or "playback unavailable",
+            "artist": "-",
+            "album": "-",
+            "progress_percent": 0,
+            "artwork_available": False,
+        }
+
+
 def toggle_playback():
     playback = read_playback()
     source_id = playback.get("source_id")
@@ -692,8 +709,59 @@ def toggle_playback():
     }
 
 
+def make_codex_unavailable_status(error):
+    return {
+        "state": "codex_unavailable",
+        "progress": -1,
+        "progress_known": False,
+        "message": "Codex local state is temporarily unavailable; playback data is still live.",
+        "task": {
+            "title": "Codex unavailable",
+            "phase": "waiting for local state",
+            "detail": error,
+            "progress": -1,
+        },
+        "codex": {
+            "thread_id": None,
+            "title": "Codex unavailable",
+            "cwd": os.getcwd(),
+            "model": "-",
+            "reasoning_effort": "-",
+            "sandbox_policy": "-",
+            "approval_mode": "-",
+            "cli_version": "-",
+            "source": "-",
+            "updated_at": None,
+            "updated_at_local": iso_now(),
+        },
+        "usage": {
+            "thread_tokens_used": 0,
+            "goal_tokens_used": None,
+            "token_budget": None,
+            "weekly_usage": None,
+            "weekly_reset_at": None,
+            "account_limits_available": False,
+            "account_rate_limits": {
+                "account_limits_available": False,
+                "error": error,
+            },
+            "thread_tokens_source": STATE_DB,
+            "goal_tokens_source": None,
+            "account_limits_note": error,
+        },
+        "logs": {
+            "events_last_5m": 0,
+        },
+        "spotify": safe_read_playback(),
+    }
+
+
 def make_codex_status():
-    thread = read_latest_thread()
+    try:
+        thread = read_latest_thread()
+    except Exception as exception:
+        return make_codex_unavailable_status(str(exception))
+
     if not thread:
         return {
             "state": "offline",
@@ -705,19 +773,32 @@ def make_codex_status():
             },
             "progress_known": False,
             "progress": -1,
+            "spotify": safe_read_playback(),
         }
 
-    goal = read_goal(thread.get("id"))
+    try:
+        goal = read_goal(thread.get("id"))
+    except Exception:
+        goal = None
     token_budget = goal.get("token_budget") if goal else None
     goal_tokens = goal.get("tokens_used") if goal else None
     thread_tokens = int(thread.get("tokens_used") or 0)
     progress_known = bool(token_budget and int(token_budget) > 0)
     progress = int(min(100, round((int(goal_tokens or thread_tokens) / int(token_budget)) * 100))) if progress_known else -1
-    logs_5m = recent_log_count()
+    try:
+        logs_5m = recent_log_count()
+    except Exception:
+        logs_5m = 0
     state = goal.get("status") if goal and goal.get("status") else ("active" if logs_5m > 0 else "idle")
     model = thread.get("model") or "unknown"
     reasoning = thread.get("reasoning_effort") or "default"
-    account_rate_limits = read_account_rate_limits()
+    try:
+        account_rate_limits = read_account_rate_limits()
+    except Exception as exception:
+        account_rate_limits = {
+            "account_limits_available": False,
+            "error": str(exception),
+        }
 
     return {
         "state": state,
@@ -758,7 +839,7 @@ def make_codex_status():
         "logs": {
             "events_last_5m": logs_5m,
         },
-        "spotify": read_playback(),
+        "spotify": safe_read_playback(),
     }
 
 
