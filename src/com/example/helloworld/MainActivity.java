@@ -253,6 +253,19 @@ public class MainActivity extends Activity {
         leftPanel.addView(leftFiller, new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, 0, 1));
 
+        TextView environmentLabel = terminalText("ENVIRONMENT", MUTED, 10, true);
+        environmentLabel.setSingleLine(true);
+        leftPanel.addView(environmentLabel, wrap());
+
+        topBatteryValue = terminalText("▭ --%", TEXT, 16, false);
+        topBatteryValue.setSingleLine(true);
+        leftPanel.addView(topBatteryValue, wrap());
+
+        updatedValue = terminalText("Updated: -", Color.rgb(87, 85, 77), 10, false);
+        updatedValue.setSingleLine(true);
+        updatedValue.setEllipsize(TextUtils.TruncateAt.MIDDLE);
+        leftPanel.addView(updatedValue, wrap());
+
         LinearLayout centerPanel = new LinearLayout(this);
         centerPanel.setOrientation(LinearLayout.VERTICAL);
         centerPanel.setGravity(Gravity.CENTER_HORIZONTAL);
@@ -297,7 +310,7 @@ public class MainActivity extends Activity {
         LinearLayout trackTextColumn = new LinearLayout(this);
         trackTextColumn.setOrientation(LinearLayout.VERTICAL);
         trackTextColumn.setGravity(Gravity.CENTER_VERTICAL);
-        trackRow.addView(trackTextColumn, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1));
+        trackRow.addView(trackTextColumn, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 0.48f));
 
         LinearLayout sourceRow = new LinearLayout(this);
         sourceRow.setOrientation(LinearLayout.HORIZONTAL);
@@ -333,9 +346,10 @@ public class MainActivity extends Activity {
         progressColumn.setOrientation(LinearLayout.HORIZONTAL);
         progressColumn.setGravity(Gravity.CENTER_VERTICAL);
         LinearLayout.LayoutParams progressColumnParams = new LinearLayout.LayoutParams(
-                portrait ? dp(190) : dp(250),
+                0,
                 LinearLayout.LayoutParams.WRAP_CONTENT);
-        progressColumnParams.setMargins(dp(16), 0, 0, 0);
+        progressColumnParams.weight = 0.52f;
+        progressColumnParams.setMargins(dp(28), 0, 0, 0);
         trackRow.addView(progressColumn, progressColumnParams);
 
         positionValue = terminalText("--:--", TEXT, 11, false);
@@ -353,60 +367,6 @@ public class MainActivity extends Activity {
         trackMetaValue = terminalText("Track        -\nArtist       -\nAlbum        -\nDuration     -", MUTED, 12, false);
         trackMetaValue.setSingleLine(false);
 
-        LinearLayout rightPanel = new LinearLayout(this);
-        rightPanel.setOrientation(LinearLayout.VERTICAL);
-        rightPanel.setPadding(dp(16), dp(16), dp(16), dp(14));
-        rightPanel.setBackground(ramsRightPanelBackground());
-        LinearLayout.LayoutParams rightParams = portrait
-                ? new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(250))
-                : new LinearLayout.LayoutParams(dp(170), LinearLayout.LayoutParams.MATCH_PARENT);
-        dashboard.addView(rightPanel, rightParams);
-
-        TextView agentTitle = terminalText("AGENT STATUS", MUTED, 10, true);
-        agentTitle.setSingleLine(true);
-        rightPanel.addView(agentTitle, wrap());
-
-        addSpacer(rightPanel, 14);
-        TextView codexLabel = terminalText("Codex", TEXT, 12, false);
-        codexLabel.setSingleLine(true);
-        rightPanel.addView(codexLabel, wrap());
-
-        statusValue = terminalText("Online", GREEN, 11, false);
-        statusValue.setSingleLine(true);
-        rightPanel.addView(statusValue, wrap());
-
-        addSpacer(rightPanel, 12);
-        TextView claudeLabel = terminalText("Claude", TEXT, 12, false);
-        claudeLabel.setSingleLine(true);
-        rightPanel.addView(claudeLabel, wrap());
-        TextView claudeState = terminalText("Thinking", Color.rgb(212, 164, 76), 11, false);
-        claudeState.setSingleLine(true);
-        rightPanel.addView(claudeState, wrap());
-
-        addSpacer(rightPanel, 12);
-        TextView gptLabel = terminalText("GPT-4o", TEXT, 12, false);
-        gptLabel.setSingleLine(true);
-        rightPanel.addView(gptLabel, wrap());
-        TextView gptState = terminalText("Idle", MUTED, 11, false);
-        gptState.setSingleLine(true);
-        rightPanel.addView(gptState, wrap());
-
-        View rightFiller = new View(this);
-        rightPanel.addView(rightFiller, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1));
-
-        TextView weatherTitle = terminalText("WEATHER", MUTED, 10, true);
-        weatherTitle.setSingleLine(true);
-        rightPanel.addView(weatherTitle, wrap());
-
-        topBatteryValue = terminalText("▭ --%", TEXT, 16, false);
-        topBatteryValue.setSingleLine(true);
-        rightPanel.addView(topBatteryValue, wrap());
-
-        updatedValue = terminalText("Updated: -", Color.rgb(87, 85, 77), 10, false);
-        updatedValue.setSingleLine(true);
-        updatedValue.setEllipsize(TextUtils.TruncateAt.MIDDLE);
-        rightPanel.addView(updatedValue, wrap());
-
         albumValue = new TextView(this);
         trackProgressValue = new TextView(this);
         trackProgressStrip = new ProgressStripView(this);
@@ -414,6 +374,7 @@ public class MainActivity extends Activity {
         codexUsageBars = new UsageBarsView(this);
         weeklyUsageValue = new TextView(this);
         resetTimeValue = new TextView(this);
+        statusValue = new TextView(this);
         usageSourceValue = new TextView(this);
         powerValue = new TextView(this);
 
@@ -1483,9 +1444,9 @@ public class MainActivity extends Activity {
             int width = getWidth();
             int height = getHeight();
             float density = getResources().getDisplayMetrics().density;
-            float recordCx = width * 0.61f;
-            float recordCy = height * 0.43f;
-            float radius = Math.min(width * 0.30f, height * 0.36f);
+            float recordCx = width * 0.58f;
+            float recordCy = height * 0.50f;
+            float radius = Math.min(width * 0.37f, height * 0.44f);
 
             paint.setStyle(Paint.Style.FILL);
             for (int i = 0; i < 8; i++) {
@@ -1527,8 +1488,8 @@ public class MainActivity extends Activity {
             paint.setColor(Color.rgb(143, 134, 111));
             canvas.drawCircle(recordCx, recordCy, radius, paint);
 
-            float coverSize = radius * 1.20f;
-            float coverCx = width * 0.41f;
+            float coverSize = radius * 1.28f;
+            float coverCx = width * 0.40f;
             float coverCy = recordCy;
             drawAlbumCover(canvas, coverCx, coverCy, coverSize, density);
 
