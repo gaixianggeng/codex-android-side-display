@@ -14,43 +14,43 @@ screen_height = 120.4;
 
 // Fit and shell depth.
 tablet_clearance = 1.4;
-front_wall = 2.6;
+front_wall = 4.0;
 rear_clearance = 2.4;
-body_depth = 24;
+body_depth = 40;
 
 // Front layout: speaker grille | Nokia N1 screen | controls.
-screen_window_width = 154;
-screen_window_height = 112;
+screen_window_width = 164;
+screen_window_height = 110;
 screen_corner_radius = 4.5;
-screen_bezel_width = 8.0;
-screen_center_x = -10;
+screen_bezel_width = 7.5;
+screen_center_x = 0;
 screen_center_y = 0;
 
-speaker_center_x = 136;
+speaker_center_x = 118;
 speaker_center_y = 2;
 speaker_cols = 13;
-speaker_rows = 16;
-speaker_pitch = 4.2;
-speaker_hole_diameter = 1.75;
-speaker_recess_width = 62;
-speaker_recess_height = 122;
+speaker_rows = 26;
+speaker_pitch = 4.0;
+speaker_hole_diameter = 1.65;
+speaker_recess_width = 58;
+speaker_recess_height = 124;
 speaker_recess_depth = 0.55;
 
-controls_center_x = -130;
-knob_center_y = 17;
-knob_diameter = 34;
-knob_raise = 4.4;
+controls_center_x = -124;
+knob_center_y = 18;
+knob_diameter = 32;
+knob_raise = 5.2;
 knob_chamfer = 1.2;
-button_diameter = 7.8;
-button_raise = 2.4;
-button_spacing = 14.5;
+button_diameter = 6.8;
+button_raise = 2.6;
+button_spacing = 13.0;
 button_center_y = -31;
 
 // Body proportions. The concept image says 263 x 110 mm, but Nokia N1 is
 // 138.6 mm tall, so this printable version is scaled to fit the real tablet.
-outer_width = 318;
-outer_height = 168;
-outer_corner_radius = 8;
+outer_width = 306;
+outer_height = 152;
+outer_corner_radius = 6;
 front_face_recess = 1.1;
 front_face_margin = 7;
 top_highlight_y = outer_height / 2 - 13;
@@ -84,9 +84,9 @@ rear_vent_pitch = 5.2;
 rear_vent_slot_width = 3.2;
 rear_vent_slot_height = 1.2;
 use_kickstand = true;
-kickstand_span = 202;
-kickstand_height = 68;
-kickstand_reach = 48;
+kickstand_span = 176;
+kickstand_height = 72;
+kickstand_reach = 58;
 kickstand_rib_width = 10;
 
 show_tablet_in_assembly = true;
@@ -226,10 +226,23 @@ module controls_shadow_preview() {
     }
 }
 
-module logo_mark() {
-    translate([outer_width / 2 - 28, outer_height / 2 - 29, -0.45])
-        linear_extrude(height = 0.5)
-            text("BRAUN", size = 5.0, halign = "center", valign = "center", font = "Helvetica:style=Bold");
+module front_label_text(label, x, y, size, depth = 0.45) {
+    translate([x, y, -depth])
+        linear_extrude(height = depth + 0.05)
+            mirror([1, 0, 0])
+                text(label, size = size, halign = "center", valign = "center", font = "Helvetica:style=Bold");
+}
+
+module front_labels_relief() {
+    front_label_text("BRAUN", speaker_center_x, -outer_height / 2 + 18, 4.7);
+    front_label_text("NOKIA N1", -outer_width / 2 + 34, outer_height / 2 - 20, 3.8);
+}
+
+module front_labels_dark_preview() {
+    color([0.02, 0.02, 0.018, 1]) {
+        front_label_text("BRAUN", speaker_center_x, -outer_height / 2 + 18, 4.7, 0.7);
+        front_label_text("NOKIA N1", -outer_width / 2 + 34, outer_height / 2 - 20, 3.8, 0.7);
+    }
 }
 
 module charge_cutout() {
@@ -351,7 +364,7 @@ module shell_body() {
                     screen_bezel();
                     controls();
                     control_tick();
-                    logo_mark();
+                    front_labels_relief();
                 }
                 shallow_front_recess_cut();
                 top_highlight_cut();
@@ -402,9 +415,10 @@ if (part == "shell") {
 } else if (part == "tablet") {
     tablet_placeholder();
 } else {
-    color([0.86, 0.85, 0.80, 1]) shell_body();
+    color([0.99, 0.985, 0.965, 1]) shell_body();
     if (show_tablet_in_assembly) tablet_placeholder();
     screen_glass_preview();
     speaker_dark_preview();
     controls_shadow_preview();
+    front_labels_dark_preview();
 }

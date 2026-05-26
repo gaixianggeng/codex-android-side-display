@@ -163,203 +163,114 @@ public class MainActivity extends Activity {
     private void buildLayout() {
         boolean portrait = getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
         FrameLayout root = new FrameLayout(this);
-        root.setBackgroundColor(Color.rgb(7, 8, 8));
+        root.setBackgroundColor(Color.rgb(3, 4, 4));
 
-        LinearLayout deck = new LinearLayout(this);
-        deck.setOrientation(LinearLayout.VERTICAL);
-        deck.setPadding(
-                portrait ? dp(18) : dp(28),
-                portrait ? dp(18) : dp(22),
-                portrait ? dp(18) : dp(28),
-                portrait ? dp(16) : dp(20));
-        deck.setBackgroundColor(PANEL);
-        FrameLayout.LayoutParams deckParams = new FrameLayout.LayoutParams(
+        LinearLayout dashboard = new LinearLayout(this);
+        dashboard.setOrientation(portrait ? LinearLayout.VERTICAL : LinearLayout.HORIZONTAL);
+        dashboard.setGravity(Gravity.CENTER_VERTICAL);
+        dashboard.setPadding(
+                portrait ? dp(18) : dp(24),
+                portrait ? dp(18) : dp(18),
+                portrait ? dp(18) : dp(24),
+                portrait ? dp(18) : dp(18));
+        dashboard.setBackgroundColor(Color.rgb(5, 6, 6));
+        FrameLayout.LayoutParams dashboardParams = new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.MATCH_PARENT);
-        root.addView(deck, deckParams);
+        root.addView(dashboard, dashboardParams);
 
-        LinearLayout topBar = new LinearLayout(this);
-        topBar.setOrientation(LinearLayout.HORIZONTAL);
-        topBar.setGravity(Gravity.CENTER_VERTICAL);
-        deck.addView(topBar, new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                dp(40)));
-
-        LinearLayout topSourceRow = new LinearLayout(this);
-        topSourceRow.setOrientation(LinearLayout.HORIZONTAL);
-        topSourceRow.setGravity(Gravity.LEFT | Gravity.CENTER_VERTICAL);
-        topBar.addView(topSourceRow, new LinearLayout.LayoutParams(dp(150), LinearLayout.LayoutParams.WRAP_CONTENT));
-
-        topSourceIcon = new ImageView(this);
-        topSourceIcon.setScaleType(ImageView.ScaleType.FIT_CENTER);
         spotifySourceIcon = loadAssetBitmap("spotify_icon.png");
         appleMusicSourceIcon = loadAssetBitmap("apple_music_icon.png");
-        if (spotifySourceIcon != null) {
-            topSourceIcon.setImageBitmap(spotifySourceIcon);
-        }
-        LinearLayout.LayoutParams topBadgeParams = new LinearLayout.LayoutParams(dp(28), dp(28));
-        topBadgeParams.setMargins(0, 0, dp(8), 0);
-        topSourceRow.addView(topSourceIcon, topBadgeParams);
 
-        topSourceNameValue = terminalText("Spotify", TEXT, 13, true);
-        topSourceNameValue.setSingleLine(true);
-        topSourceRow.addView(topSourceNameValue, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+        LinearLayout leftPanel = new LinearLayout(this);
+        leftPanel.setOrientation(LinearLayout.VERTICAL);
+        leftPanel.setPadding(dp(12), dp(8), dp(18), dp(8));
+        LinearLayout.LayoutParams leftParams = portrait
+                ? new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(330))
+                : new LinearLayout.LayoutParams(dp(235), LinearLayout.LayoutParams.MATCH_PARENT);
+        dashboard.addView(leftPanel, leftParams);
 
-        View topSpacer = new View(this);
-        topBar.addView(topSpacer, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1));
+        topTimeValue = terminalText("--:--", TEXT, portrait ? 26 : 23, false);
+        topTimeValue.setSingleLine(true);
+        leftPanel.addView(topTimeValue, wrap());
 
-        topTimeValue = terminalText("--:--", TEXT, 17, false);
-        topTimeValue.setGravity(Gravity.RIGHT);
-        topBar.addView(topTimeValue, new LinearLayout.LayoutParams(dp(120), LinearLayout.LayoutParams.WRAP_CONTENT));
+        TextView dateValue = terminalText(new SimpleDateFormat("EEE, MM.dd", Locale.US).format(new Date()).toUpperCase(Locale.US), MUTED, 12, true);
+        dateValue.setSingleLine(true);
+        leftPanel.addView(dateValue, wrap());
 
-        TextView dateValue = terminalText("  MON 05/25", MUTED, 12, false);
-        dateValue.setGravity(Gravity.RIGHT);
-        topBar.addView(dateValue, new LinearLayout.LayoutParams(dp(120), LinearLayout.LayoutParams.WRAP_CONTENT));
+        addSpacer(leftPanel, portrait ? 18 : 24);
+        TextView tokenLabel = terminalText("CODEX TOKEN", MUTED, 10, true);
+        tokenLabel.setSingleLine(true);
+        leftPanel.addView(tokenLabel, wrap());
 
-        topBatteryValue = terminalText("▭ --%", TEXT, 12, false);
-        topBatteryValue.setGravity(Gravity.RIGHT);
-        topBar.addView(topBatteryValue, new LinearLayout.LayoutParams(dp(90), LinearLayout.LayoutParams.WRAP_CONTENT));
-
-        LinearLayout mainRow = new LinearLayout(this);
-        mainRow.setOrientation(portrait ? LinearLayout.VERTICAL : LinearLayout.HORIZONTAL);
-        mainRow.setGravity(Gravity.CENTER_VERTICAL);
-        LinearLayout.LayoutParams mainParams = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                0,
-                1);
-        mainParams.setMargins(0, dp(10), 0, dp(10));
-        deck.addView(mainRow, mainParams);
-
-        LinearLayout infoColumn = new LinearLayout(this);
-        infoColumn.setOrientation(portrait ? LinearLayout.HORIZONTAL : LinearLayout.VERTICAL);
-        infoColumn.setGravity(Gravity.CENTER_VERTICAL);
-        LinearLayout.LayoutParams infoParams = portrait
-                ? new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(300))
-                : new LinearLayout.LayoutParams(dp(360), LinearLayout.LayoutParams.MATCH_PARENT);
-        if (portrait) {
-            infoParams.setMargins(0, dp(16), 0, 0);
-        } else {
-            infoParams.setMargins(0, 0, dp(24), 0);
-        }
-
-        LinearLayout nowPanel = panelBlock();
-        LinearLayout.LayoutParams nowParams = portrait
-                ? new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 0.86f)
-                : new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 0.78f);
-        if (portrait) {
-            nowParams.setMargins(0, 0, dp(14), 0);
-        } else {
-            nowParams.setMargins(0, 0, 0, dp(14));
-        }
-        infoColumn.addView(nowPanel, nowParams);
-
-        LinearLayout nowHeader = new LinearLayout(this);
-        nowHeader.setOrientation(LinearLayout.HORIZONTAL);
-        nowHeader.setGravity(Gravity.CENTER_VERTICAL);
-        nowPanel.addView(nowHeader, wrap());
-
-        playbackValue = terminalText(">  NOW PLAYING", GREEN, 12, true);
-        playbackValue.setSingleLine(true);
-        nowHeader.addView(playbackValue, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
-
-        addSpacer(nowPanel, 18);
-
-        spotifyValue = displayText("Waiting for Spotify", TEXT, 25, false);
-        spotifyValue.setGravity(Gravity.LEFT);
-        spotifyValue.setMaxLines(2);
-        spotifyValue.setEllipsize(TextUtils.TruncateAt.END);
-        nowPanel.addView(spotifyValue, wrap());
-
-        artistValue = displayText("-", TEXT, 17, false);
-        artistValue.setGravity(Gravity.LEFT);
-        artistValue.setMaxLines(1);
-        artistValue.setEllipsize(TextUtils.TruncateAt.END);
-        nowPanel.addView(artistValue, wrap());
-
-        addSpacer(nowPanel, 14);
-        View accent = new View(this);
-        accent.setBackgroundColor(GREEN);
-        nowPanel.addView(accent, new LinearLayout.LayoutParams(dp(42), dp(1)));
-        addSpacer(nowPanel, 14);
-
-        trackMetaValue = terminalText("Track        -\nArtist       -\nAlbum        -\nDuration     -", MUTED, 12, false);
-        trackMetaValue.setSingleLine(false);
-        nowPanel.addView(trackMetaValue, wrap());
-
-        LinearLayout usagePanel = panelBlock();
-        LinearLayout.LayoutParams usageParams = portrait
-                ? new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1)
-                : new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1);
-        infoColumn.addView(usagePanel, usageParams);
-
-        addPanelHeader(usagePanel, ">  CODEX USAGE", "5.1 - 5.31");
-        addSpacer(usagePanel, 22);
-
-        TextView totalLabel = terminalText("Total Tokens", MUTED, 12, false);
-        usagePanel.addView(totalLabel, wrap());
-
-        LinearLayout totalRow = new LinearLayout(this);
-        totalRow.setOrientation(LinearLayout.HORIZONTAL);
-        totalRow.setGravity(Gravity.BOTTOM);
-        usagePanel.addView(totalRow, wrap());
-
-        codexUsageValue = terminalText("0", TEXT, 30, false);
+        codexUsageValue = terminalText("0", TEXT, portrait ? 30 : 28, false);
         codexUsageValue.setSingleLine(true);
-        totalRow.addView(codexUsageValue, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
+        leftPanel.addView(codexUsageValue, wrap());
 
-        codexBudgetValue = terminalText("/ local", Color.rgb(80, 77, 68), 17, false);
-        codexBudgetValue.setGravity(Gravity.RIGHT);
-        totalRow.addView(codexBudgetValue, new LinearLayout.LayoutParams(dp(126), LinearLayout.LayoutParams.WRAP_CONTENT));
+        codexBudgetValue = terminalText("/ 200K", MUTED, 11, false);
+        codexBudgetValue.setSingleLine(true);
+        leftPanel.addView(codexBudgetValue, wrap());
 
-        addSpacer(usagePanel, 14);
-
-        LinearLayout totalProgressRow = new LinearLayout(this);
-        totalProgressRow.setOrientation(LinearLayout.HORIZONTAL);
-        totalProgressRow.setGravity(Gravity.CENTER_VERTICAL);
-        usagePanel.addView(totalProgressRow, wrap());
-
+        addSpacer(leftPanel, 8);
         totalUsageStrip = new ProgressStripView(this);
-        totalProgressRow.addView(totalUsageStrip, new LinearLayout.LayoutParams(0, dp(10), 1));
+        leftPanel.addView(totalUsageStrip, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(8)));
 
-        usagePercentValue = terminalText("--", GREEN, 13, false);
+        usagePercentValue = terminalText("live", GREEN, 11, false);
         usagePercentValue.setGravity(Gravity.RIGHT);
-        totalProgressRow.addView(usagePercentValue, new LinearLayout.LayoutParams(dp(76), LinearLayout.LayoutParams.WRAP_CONTENT));
+        usagePercentValue.setSingleLine(true);
+        leftPanel.addView(usagePercentValue, wrap());
 
-        addSpacer(usagePanel, 24);
+        addSpacer(leftPanel, portrait ? 12 : 18);
+        TextView limitLabel = terminalText("REMAINING", TEXT, 10, true);
+        limitLabel.setSingleLine(true);
+        leftPanel.addView(limitLabel, wrap());
 
-        LimitStatusRow hourLimitRow = addLimitRow(usagePanel, "5 小时", "--");
+        addSpacer(leftPanel, 8);
+        LimitStatusRow hourLimitRow = addLimitRow(leftPanel, "5 小时", "--");
         hourLimitStrip = hourLimitRow.strip;
         hourLimitValue = hourLimitRow.value;
-        LimitStatusRow weeklyLimitRow = addLimitRow(usagePanel, "1 周", "--");
+        LimitStatusRow weeklyLimitRow = addLimitRow(leftPanel, "1 周", "--");
         weeklyLimitStrip = weeklyLimitRow.strip;
         weeklyLimitValue = weeklyLimitRow.value;
 
-        addSpacer(usagePanel, 18);
-        updatedValue = terminalText("Updated: -", Color.rgb(80, 77, 68), 11, false);
-        updatedValue.setSingleLine(true);
-        updatedValue.setEllipsize(TextUtils.TruncateAt.MIDDLE);
-        usagePanel.addView(updatedValue, wrap());
+        addSpacer(leftPanel, portrait ? 12 : 18);
+        TextView todayLabel = terminalText("TODAY", TEXT, 10, true);
+        todayLabel.setSingleLine(true);
+        leftPanel.addView(todayLabel, wrap());
 
-        albumValue = new TextView(this);
-        trackProgressValue = new TextView(this);
-        trackProgressStrip = new ProgressStripView(this);
-        codexScaleValue = new TextView(this);
-        codexUsageBars = new UsageBarsView(this);
-        weeklyUsageValue = new TextView(this);
-        resetTimeValue = new TextView(this);
+        addSpacer(leftPanel, 8);
+        TextView taskOne = terminalText("Review PR", TEXT, 11, false);
+        taskOne.setSingleLine(true);
+        leftPanel.addView(taskOne, wrap());
+        TextView taskTwo = terminalText("Design System", TEXT, 11, false);
+        taskTwo.setSingleLine(true);
+        leftPanel.addView(taskTwo, wrap());
+        TextView taskThree = terminalText("Agent Training", TEXT, 11, false);
+        taskThree.setSingleLine(true);
+        leftPanel.addView(taskThree, wrap());
 
-        FrameLayout stage = new FrameLayout(this);
-        stage.setBackgroundColor(Color.TRANSPARENT);
-        LinearLayout.LayoutParams stageParams = portrait
+        View leftFiller = new View(this);
+        leftPanel.addView(leftFiller, new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, 0, 1));
+
+        LinearLayout centerPanel = new LinearLayout(this);
+        centerPanel.setOrientation(LinearLayout.VERTICAL);
+        centerPanel.setGravity(Gravity.CENTER_HORIZONTAL);
+        centerPanel.setPadding(portrait ? 0 : dp(10), 0, portrait ? 0 : dp(14), 0);
+        LinearLayout.LayoutParams centerParams = portrait
                 ? new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1)
                 : new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1);
         if (portrait) {
-            mainRow.addView(stage, stageParams);
-            mainRow.addView(infoColumn, infoParams);
-        } else {
-            mainRow.addView(infoColumn, infoParams);
-            mainRow.addView(stage, stageParams);
+            centerParams.setMargins(0, dp(18), 0, dp(18));
         }
+        dashboard.addView(centerPanel, centerParams);
+
+        FrameLayout stage = new FrameLayout(this);
+        LinearLayout.LayoutParams stageParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                0,
+                1);
+        centerPanel.addView(stage, stageParams);
 
         vinylView = new VinylView(this);
         FrameLayout.LayoutParams vinylParams = new FrameLayout.LayoutParams(
@@ -375,27 +286,134 @@ public class MainActivity extends Activity {
             }
         });
 
-        LinearLayout bottomRow = new LinearLayout(this);
-        bottomRow.setOrientation(LinearLayout.HORIZONTAL);
-        bottomRow.setGravity(Gravity.CENTER_VERTICAL);
-        bottomRow.setPadding(0, dp(8), 0, 0);
-        deck.addView(bottomRow, new LinearLayout.LayoutParams(
+        LinearLayout trackRow = new LinearLayout(this);
+        trackRow.setOrientation(LinearLayout.HORIZONTAL);
+        trackRow.setGravity(Gravity.CENTER_VERTICAL);
+        LinearLayout.LayoutParams trackRowParams = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
-                dp(54)));
+                portrait ? dp(92) : dp(74));
+        centerPanel.addView(trackRow, trackRowParams);
 
-        positionValue = terminalText("--:--", TEXT, 14, false);
-        bottomRow.addView(positionValue, new LinearLayout.LayoutParams(dp(70), LinearLayout.LayoutParams.WRAP_CONTENT));
+        LinearLayout trackTextColumn = new LinearLayout(this);
+        trackTextColumn.setOrientation(LinearLayout.VERTICAL);
+        trackTextColumn.setGravity(Gravity.CENTER_VERTICAL);
+        trackRow.addView(trackTextColumn, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1));
+
+        LinearLayout sourceRow = new LinearLayout(this);
+        sourceRow.setOrientation(LinearLayout.HORIZONTAL);
+        sourceRow.setGravity(Gravity.CENTER_VERTICAL);
+        trackTextColumn.addView(sourceRow, wrap());
+
+        topSourceIcon = new ImageView(this);
+        topSourceIcon.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        if (spotifySourceIcon != null) {
+            topSourceIcon.setImageBitmap(spotifySourceIcon);
+        }
+        LinearLayout.LayoutParams sourceIconParams = new LinearLayout.LayoutParams(dp(18), dp(18));
+        sourceIconParams.setMargins(0, 0, dp(8), 0);
+        sourceRow.addView(topSourceIcon, sourceIconParams);
+
+        topSourceNameValue = terminalText("Spotify", MUTED, 10, true);
+        topSourceNameValue.setSingleLine(true);
+        sourceRow.addView(topSourceNameValue, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+
+        spotifyValue = displayText("Waiting for playback", TEXT, portrait ? 21 : 18, false);
+        spotifyValue.setGravity(Gravity.LEFT);
+        spotifyValue.setMaxLines(2);
+        spotifyValue.setEllipsize(TextUtils.TruncateAt.END);
+        trackTextColumn.addView(spotifyValue, wrap());
+
+        artistValue = displayText("-", MUTED, portrait ? 14 : 12, false);
+        artistValue.setGravity(Gravity.LEFT);
+        artistValue.setMaxLines(1);
+        artistValue.setEllipsize(TextUtils.TruncateAt.END);
+        trackTextColumn.addView(artistValue, wrap());
+
+        LinearLayout progressColumn = new LinearLayout(this);
+        progressColumn.setOrientation(LinearLayout.HORIZONTAL);
+        progressColumn.setGravity(Gravity.CENTER_VERTICAL);
+        LinearLayout.LayoutParams progressColumnParams = new LinearLayout.LayoutParams(
+                portrait ? dp(190) : dp(250),
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+        progressColumnParams.setMargins(dp(16), 0, 0, 0);
+        trackRow.addView(progressColumn, progressColumnParams);
+
+        positionValue = terminalText("--:--", TEXT, 11, false);
+        progressColumn.addView(positionValue, new LinearLayout.LayoutParams(dp(46), LinearLayout.LayoutParams.WRAP_CONTENT));
 
         bottomProgressStrip = new ProgressStripView(this);
-        LinearLayout.LayoutParams bottomProgressParams = new LinearLayout.LayoutParams(0, dp(10), 1);
-        bottomProgressParams.setMargins(dp(22), 0, dp(22), 0);
-        bottomRow.addView(bottomProgressStrip, bottomProgressParams);
+        LinearLayout.LayoutParams bottomProgressParams = new LinearLayout.LayoutParams(0, dp(6), 1);
+        bottomProgressParams.setMargins(dp(10), 0, dp(10), 0);
+        progressColumn.addView(bottomProgressStrip, bottomProgressParams);
 
-        durationValue = terminalText("--:--", TEXT, 14, false);
+        durationValue = terminalText("--:--", TEXT, 11, false);
         durationValue.setGravity(Gravity.RIGHT);
-        bottomRow.addView(durationValue, new LinearLayout.LayoutParams(dp(70), LinearLayout.LayoutParams.WRAP_CONTENT));
+        progressColumn.addView(durationValue, new LinearLayout.LayoutParams(dp(46), LinearLayout.LayoutParams.WRAP_CONTENT));
 
-        statusValue = new TextView(this);
+        trackMetaValue = terminalText("Track        -\nArtist       -\nAlbum        -\nDuration     -", MUTED, 12, false);
+        trackMetaValue.setSingleLine(false);
+
+        LinearLayout rightPanel = new LinearLayout(this);
+        rightPanel.setOrientation(LinearLayout.VERTICAL);
+        rightPanel.setPadding(dp(16), dp(16), dp(16), dp(14));
+        rightPanel.setBackground(ramsRightPanelBackground());
+        LinearLayout.LayoutParams rightParams = portrait
+                ? new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(250))
+                : new LinearLayout.LayoutParams(dp(170), LinearLayout.LayoutParams.MATCH_PARENT);
+        dashboard.addView(rightPanel, rightParams);
+
+        TextView agentTitle = terminalText("AGENT STATUS", MUTED, 10, true);
+        agentTitle.setSingleLine(true);
+        rightPanel.addView(agentTitle, wrap());
+
+        addSpacer(rightPanel, 14);
+        TextView codexLabel = terminalText("Codex", TEXT, 12, false);
+        codexLabel.setSingleLine(true);
+        rightPanel.addView(codexLabel, wrap());
+
+        statusValue = terminalText("Online", GREEN, 11, false);
+        statusValue.setSingleLine(true);
+        rightPanel.addView(statusValue, wrap());
+
+        addSpacer(rightPanel, 12);
+        TextView claudeLabel = terminalText("Claude", TEXT, 12, false);
+        claudeLabel.setSingleLine(true);
+        rightPanel.addView(claudeLabel, wrap());
+        TextView claudeState = terminalText("Thinking", Color.rgb(212, 164, 76), 11, false);
+        claudeState.setSingleLine(true);
+        rightPanel.addView(claudeState, wrap());
+
+        addSpacer(rightPanel, 12);
+        TextView gptLabel = terminalText("GPT-4o", TEXT, 12, false);
+        gptLabel.setSingleLine(true);
+        rightPanel.addView(gptLabel, wrap());
+        TextView gptState = terminalText("Idle", MUTED, 11, false);
+        gptState.setSingleLine(true);
+        rightPanel.addView(gptState, wrap());
+
+        View rightFiller = new View(this);
+        rightPanel.addView(rightFiller, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1));
+
+        TextView weatherTitle = terminalText("WEATHER", MUTED, 10, true);
+        weatherTitle.setSingleLine(true);
+        rightPanel.addView(weatherTitle, wrap());
+
+        topBatteryValue = terminalText("▭ --%", TEXT, 16, false);
+        topBatteryValue.setSingleLine(true);
+        rightPanel.addView(topBatteryValue, wrap());
+
+        updatedValue = terminalText("Updated: -", Color.rgb(87, 85, 77), 10, false);
+        updatedValue.setSingleLine(true);
+        updatedValue.setEllipsize(TextUtils.TruncateAt.MIDDLE);
+        rightPanel.addView(updatedValue, wrap());
+
+        albumValue = new TextView(this);
+        trackProgressValue = new TextView(this);
+        trackProgressStrip = new ProgressStripView(this);
+        codexScaleValue = new TextView(this);
+        codexUsageBars = new UsageBarsView(this);
+        weeklyUsageValue = new TextView(this);
+        resetTimeValue = new TextView(this);
         usageSourceValue = new TextView(this);
         powerValue = new TextView(this);
 
@@ -622,6 +640,14 @@ public class MainActivity extends Activity {
         drawable.setColor(Color.argb(88, 24, 26, 25));
         drawable.setCornerRadius(dp(6));
         drawable.setStroke(dp(1), Color.rgb(54, 52, 46));
+        return drawable;
+    }
+
+    private GradientDrawable ramsRightPanelBackground() {
+        GradientDrawable drawable = new GradientDrawable();
+        drawable.setColor(Color.rgb(22, 24, 23));
+        drawable.setCornerRadius(dp(4));
+        drawable.setStroke(dp(1), Color.rgb(44, 45, 42));
         return drawable;
     }
 
@@ -1215,7 +1241,13 @@ public class MainActivity extends Activity {
     }
 
     private String shortSession(String updatedAt) {
-        if (updatedAt == null || updatedAt.length() < 19) {
+        if (updatedAt == null) {
+            return "-";
+        }
+        if (updatedAt.length() >= 16) {
+            return updatedAt.substring(5, 16).replace('T', ' ');
+        }
+        if (updatedAt.length() < 19) {
             return updatedAt == null ? "-" : updatedAt;
         }
         return updatedAt.substring(0, 19).replace('T', ' ');
@@ -1451,51 +1483,87 @@ public class MainActivity extends Activity {
             int width = getWidth();
             int height = getHeight();
             float density = getResources().getDisplayMetrics().density;
-            float cx = width * 0.50f;
-            float cy = height * 0.50f;
-            float radius = Math.min(width * 0.78f, height * 0.88f) * 0.50f;
+            float recordCx = width * 0.61f;
+            float recordCy = height * 0.43f;
+            float radius = Math.min(width * 0.30f, height * 0.36f);
 
             paint.setStyle(Paint.Style.FILL);
-            for (int i = 0; i < 10; i++) {
-                paint.setColor(Color.argb(12 - i, 210, 205, 190));
-                canvas.drawCircle(cx, cy, radius * (1.10f + i * 0.026f), paint);
+            for (int i = 0; i < 8; i++) {
+                paint.setColor(Color.argb(10 - i, 210, 205, 190));
+                canvas.drawCircle(recordCx, recordCy, radius * (1.05f + i * 0.030f), paint);
             }
 
             paint.setColor(Color.rgb(9, 10, 10));
-            canvas.drawCircle(cx, cy, radius * 1.04f, paint);
+            canvas.drawCircle(recordCx, recordCy, radius * 1.04f, paint);
 
             paint.setStyle(Paint.Style.STROKE);
-            paint.setStrokeWidth(2.0f * density);
+            paint.setStrokeWidth(1.6f * density);
             paint.setColor(Color.rgb(76, 70, 56));
-            canvas.drawCircle(cx, cy, radius * 1.03f, paint);
+            canvas.drawCircle(recordCx, recordCy, radius * 1.03f, paint);
 
             paint.setStyle(Paint.Style.FILL);
             paint.setColor(Color.rgb(12, 13, 13));
-            canvas.drawCircle(cx, cy, radius, paint);
-
-            paint.setStyle(Paint.Style.STROKE);
-            for (int i = 0; i < 22; i++) {
-                paint.setStrokeWidth(i % 5 == 0 ? 1.4f * density : 0.55f * density);
-                paint.setColor(i % 5 == 0 ? Color.rgb(36, 37, 34) : Color.rgb(20, 21, 20));
-                canvas.drawCircle(cx, cy, radius * (0.64f + i * 0.016f), paint);
-            }
+            canvas.drawCircle(recordCx, recordCy, radius, paint);
 
             canvas.save();
-            canvas.rotate(angle, cx, cy);
-            drawArtwork(canvas, cx, cy, radius * 0.64f);
+            canvas.rotate(angle, recordCx, recordCy);
+            paint.setStyle(Paint.Style.STROKE);
+            for (int i = 0; i < 22; i++) {
+                paint.setStrokeWidth(i % 5 == 0 ? 1.0f * density : 0.45f * density);
+                paint.setColor(i % 5 == 0 ? Color.rgb(36, 37, 34) : Color.rgb(20, 21, 20));
+                canvas.drawCircle(recordCx, recordCy, radius * (0.30f + i * 0.030f), paint);
+            }
+            drawRecordMotionMarks(canvas, recordCx, recordCy, radius, density);
+
+            paint.setStyle(Paint.Style.FILL);
+            paint.setColor(Color.rgb(196, 184, 150));
+            canvas.drawCircle(recordCx, recordCy, radius * 0.22f, paint);
+            paint.setColor(Color.rgb(14, 15, 15));
+            canvas.drawCircle(recordCx, recordCy, radius * 0.055f, paint);
             canvas.restore();
 
             paint.setStyle(Paint.Style.STROKE);
-            paint.setStrokeWidth(1.5f * density);
+            paint.setStrokeWidth(1.2f * density);
             paint.setColor(Color.rgb(143, 134, 111));
-            canvas.drawCircle(cx, cy, radius, paint);
+            canvas.drawCircle(recordCx, recordCy, radius, paint);
 
-            drawTonearm(canvas, width, height, cx, cy, radius, density);
+            float coverSize = radius * 1.20f;
+            float coverCx = width * 0.41f;
+            float coverCy = recordCy;
+            drawAlbumCover(canvas, coverCx, coverCy, coverSize, density);
 
             if (playing) {
-                angle = (angle + 0.6f) % 360f;
+                angle = (angle + 0.45f) % 360f;
                 postInvalidateDelayed(16);
             }
+        }
+
+        private void drawRecordMotionMarks(Canvas canvas, float cx, float cy, float radius, float density) {
+            paint.setStyle(Paint.Style.STROKE);
+            paint.setStrokeCap(Paint.Cap.ROUND);
+
+            for (int i = 0; i < 9; i++) {
+                float degrees = i * 40f + 12f;
+                double radians = Math.toRadians(degrees);
+                float inner = radius * (0.42f + (i % 3) * 0.12f);
+                float outer = inner + radius * (0.16f + (i % 2) * 0.06f);
+                float x1 = cx + (float) Math.cos(radians) * inner;
+                float y1 = cy + (float) Math.sin(radians) * inner;
+                float x2 = cx + (float) Math.cos(radians) * outer;
+                float y2 = cy + (float) Math.sin(radians) * outer;
+                paint.setStrokeWidth((i % 3 == 0 ? 1.4f : 0.8f) * density);
+                paint.setColor(i % 3 == 0 ? Color.rgb(58, 57, 51) : Color.rgb(31, 32, 30));
+                canvas.drawLine(x1, y1, x2, y2, paint);
+            }
+
+            paint.setStrokeWidth(1.0f * density);
+            paint.setColor(Color.rgb(66, 61, 50));
+            rect.set(cx - radius * 0.86f, cy - radius * 0.86f, cx + radius * 0.86f, cy + radius * 0.86f);
+            canvas.drawArc(rect, 214, 24, false, paint);
+            rect.set(cx - radius * 0.68f, cy - radius * 0.68f, cx + radius * 0.68f, cy + radius * 0.68f);
+            canvas.drawArc(rect, 28, 18, false, paint);
+
+            paint.setStrokeCap(Paint.Cap.BUTT);
         }
 
         private void drawTonearm(Canvas canvas, int width, int height, float cx, float cy, float radius, float density) {
@@ -1562,6 +1630,59 @@ public class MainActivity extends Activity {
             rect.set(cx - drawWidth / 2, cy - drawHeight / 2, cx + drawWidth / 2, cy + drawHeight / 2);
             canvas.drawBitmap(artwork, null, rect, paint);
             canvas.restore();
+        }
+
+        private void drawAlbumCover(Canvas canvas, float cx, float cy, float size, float density) {
+            float left = cx - size / 2;
+            float top = cy - size / 2;
+            float right = cx + size / 2;
+            float bottom = cy + size / 2;
+
+            paint.setStyle(Paint.Style.FILL);
+            paint.setColor(Color.argb(150, 0, 0, 0));
+            rect.set(left + 6 * density, top + 8 * density, right + 8 * density, bottom + 10 * density);
+            canvas.drawRoundRect(rect, 5 * density, 5 * density, paint);
+
+            rect.set(left, top, right, bottom);
+            paint.setColor(Color.rgb(18, 19, 19));
+            canvas.drawRoundRect(rect, 4 * density, 4 * density, paint);
+
+            Path path = new Path();
+            path.addRoundRect(rect, 4 * density, 4 * density, Path.Direction.CW);
+            canvas.save();
+            canvas.clipPath(path);
+            if (artwork != null) {
+                float scale = Math.max(size / artwork.getWidth(), size / artwork.getHeight());
+                float drawWidth = artwork.getWidth() * scale;
+                float drawHeight = artwork.getHeight() * scale;
+                rect.set(cx - drawWidth / 2, cy - drawHeight / 2, cx + drawWidth / 2, cy + drawHeight / 2);
+                canvas.drawBitmap(artwork, null, rect, paint);
+            } else {
+                paint.setStyle(Paint.Style.FILL);
+                paint.setColor(Color.rgb(26, 27, 26));
+                canvas.drawRect(left, top, right, bottom, paint);
+                paint.setColor(Color.rgb(232, 215, 166));
+                paint.setTextAlign(Paint.Align.CENTER);
+                paint.setTypeface(Typeface.create("sans-serif-condensed", Typeface.BOLD));
+                paint.setTextSize(16 * density);
+                canvas.drawText(ellipsize(track, 14), cx, cy - 4 * density, paint);
+                paint.setTypeface(Typeface.create("sans-serif", Typeface.NORMAL));
+                paint.setTextSize(10 * density);
+                canvas.drawText(ellipsize(artist, 18), cx, cy + 14 * density, paint);
+                paint.setTextAlign(Paint.Align.LEFT);
+            }
+            canvas.restore();
+
+            paint.setStyle(Paint.Style.FILL);
+            paint.setColor(Color.argb(168, 20, 22, 22));
+            rect.set(left, top, right, top + 20 * density);
+            canvas.drawRect(rect, paint);
+
+            paint.setStyle(Paint.Style.STROKE);
+            paint.setStrokeWidth(Math.max(1.0f, density));
+            paint.setColor(Color.rgb(72, 70, 62));
+            rect.set(left + 0.5f, top + 0.5f, right - 0.5f, bottom - 0.5f);
+            canvas.drawRoundRect(rect, 4 * density, 4 * density, paint);
         }
 
         private String ellipsize(String value, int maxChars) {
