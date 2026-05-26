@@ -1415,6 +1415,7 @@ public class MainActivity extends Activity {
         private Bitmap artwork;
         private boolean playing;
         private float angle;
+        private float armDrop;
         private String track = "No track";
         private String artist = "-";
 
@@ -1447,6 +1448,12 @@ public class MainActivity extends Activity {
             float recordCx = width * 0.58f;
             float recordCy = height * 0.50f;
             float radius = Math.min(width * 0.37f, height * 0.44f);
+            float targetDrop = playing ? 1.0f : 0.0f;
+            if (Math.abs(targetDrop - armDrop) > 0.01f) {
+                armDrop += (targetDrop - armDrop) * 0.10f;
+            } else {
+                armDrop = targetDrop;
+            }
 
             paint.setStyle(Paint.Style.FILL);
             for (int i = 0; i < 8; i++) {
@@ -1492,9 +1499,12 @@ public class MainActivity extends Activity {
             float coverCx = width * 0.40f;
             float coverCy = recordCy;
             drawAlbumCover(canvas, coverCx, coverCy, coverSize, density);
+            drawTonearm(canvas, width, height, recordCx, recordCy, radius, density);
 
             if (playing) {
                 angle = (angle + 0.45f) % 360f;
+            }
+            if (playing || Math.abs(targetDrop - armDrop) > 0.01f) {
                 postInvalidateDelayed(16);
             }
         }
@@ -1528,43 +1538,65 @@ public class MainActivity extends Activity {
         }
 
         private void drawTonearm(Canvas canvas, int width, int height, float cx, float cy, float radius, float density) {
-            float pivotX = width * 0.86f;
-            float pivotY = height * 0.19f;
-            float headX = cx + radius * 0.50f;
-            float headY = cy + radius * 0.50f;
+            float pivotX = cx + radius * 0.80f;
+            float pivotY = cy - radius * 0.78f;
+            float raisedHeadX = cx + radius * 0.82f;
+            float raisedHeadY = cy - radius * 0.30f;
+            float loweredHeadX = cx + radius * 0.46f;
+            float loweredHeadY = cy + radius * 0.18f;
+            float easedDrop = armDrop * armDrop * (3.0f - 2.0f * armDrop);
+            float headX = raisedHeadX + (loweredHeadX - raisedHeadX) * easedDrop;
+            float headY = raisedHeadY + (loweredHeadY - raisedHeadY) * easedDrop;
+            float liftOffset = (1.0f - easedDrop) * 10.0f * density;
 
             paint.setStyle(Paint.Style.FILL);
-            paint.setColor(Color.rgb(8, 9, 9));
-            canvas.drawCircle(pivotX, pivotY, radius * 0.16f, paint);
+            paint.setColor(Color.argb(140, 0, 0, 0));
+            canvas.drawCircle(pivotX + 3 * density, pivotY + 4 * density, radius * 0.13f, paint);
+            paint.setColor(Color.rgb(7, 8, 8));
+            canvas.drawCircle(pivotX, pivotY, radius * 0.13f, paint);
 
             paint.setStyle(Paint.Style.STROKE);
-            paint.setStrokeWidth(5.5f * density);
+            paint.setStrokeWidth(4.0f * density);
             paint.setStrokeCap(Paint.Cap.ROUND);
-            paint.setColor(Color.rgb(18, 19, 18));
+            paint.setColor(Color.argb(150, 0, 0, 0));
             Path cable = new Path();
-            cable.moveTo(pivotX, pivotY);
-            cable.cubicTo(width * 0.78f, height * 0.22f, width * 0.80f, height * 0.54f, headX, headY);
+            cable.moveTo(pivotX + 3 * density, pivotY + 4 * density);
+            cable.cubicTo(cx + radius * 0.78f, cy - radius * 0.42f,
+                    cx + radius * 0.72f, cy - radius * 0.05f,
+                    headX + 2 * density, headY + liftOffset + 3 * density);
             canvas.drawPath(cable, paint);
 
-            paint.setStrokeWidth(2.3f * density);
-            paint.setColor(Color.rgb(76, 75, 69));
+            paint.setStrokeWidth(2.0f * density);
+            paint.setColor(Color.rgb(74, 73, 66));
+            cable.reset();
+            cable.moveTo(pivotX, pivotY);
+            cable.cubicTo(cx + radius * 0.78f, cy - radius * 0.42f,
+                    cx + radius * 0.72f, cy - radius * 0.05f,
+                    headX, headY + liftOffset);
             canvas.drawPath(cable, paint);
 
             paint.setStyle(Paint.Style.FILL);
-            paint.setColor(Color.rgb(27, 28, 27));
-            rect.set(pivotX - radius * 0.10f, pivotY - radius * 0.10f, pivotX + radius * 0.10f, pivotY + radius * 0.10f);
+            paint.setColor(Color.rgb(24, 25, 24));
+            rect.set(pivotX - radius * 0.08f, pivotY - radius * 0.08f, pivotX + radius * 0.08f, pivotY + radius * 0.08f);
             canvas.drawOval(rect, paint);
-            paint.setColor(Color.rgb(160, 151, 128));
-            canvas.drawCircle(pivotX, pivotY, radius * 0.045f, paint);
+            paint.setColor(Color.rgb(163, 154, 128));
+            canvas.drawCircle(pivotX, pivotY, radius * 0.035f, paint);
 
             canvas.save();
-            canvas.rotate(-31, headX, headY);
+            float cartridgeY = headY + liftOffset;
+            float cartridgeAngle = (float) Math.toDegrees(Math.atan2(cartridgeY - pivotY, headX - pivotX)) + 92.0f;
+            canvas.rotate(cartridgeAngle, headX, cartridgeY);
             paint.setStyle(Paint.Style.FILL);
             paint.setColor(Color.rgb(20, 21, 20));
-            rect.set(headX - radius * 0.08f, headY - radius * 0.045f, headX + radius * 0.12f, headY + radius * 0.05f);
-            canvas.drawRoundRect(rect, 4 * density, 4 * density, paint);
+            rect.set(headX - radius * 0.065f, cartridgeY - radius * 0.040f, headX + radius * 0.095f, cartridgeY + radius * 0.045f);
+            canvas.drawRoundRect(rect, 3 * density, 3 * density, paint);
             paint.setColor(Color.rgb(70, 66, 57));
-            canvas.drawCircle(headX - radius * 0.03f, headY, 2.5f * density, paint);
+            canvas.drawCircle(headX - radius * 0.025f, cartridgeY, 2.0f * density, paint);
+            paint.setStyle(Paint.Style.STROKE);
+            paint.setStrokeWidth(1.0f * density);
+            paint.setColor(Color.rgb(165, 155, 126));
+            canvas.drawLine(headX - radius * 0.02f, cartridgeY + radius * 0.045f,
+                    headX - radius * 0.02f, cartridgeY + radius * (0.045f + 0.030f * easedDrop), paint);
             canvas.restore();
 
             paint.setStrokeCap(Paint.Cap.BUTT);
