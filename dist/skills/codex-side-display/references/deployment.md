@@ -2,7 +2,7 @@
 
 ## 架构
 
-这个 skill 打包了两部分：
+这个 skill 打包了两部分，用来把闲置或老旧 Android 平板变成本地 Sidecar 状态屏：
 
 - Android app：原生 Java Activity，无 Gradle，使用 `build.sh` 调用 Android SDK 工具链构建 APK。
 - 本地 sidecar：`status_server.py` 监听 `0.0.0.0:8765`，提供 `/status` 和 `/spotify-art`。
@@ -28,7 +28,8 @@ Android app 轮询 `http://<host>:8765/status`，展示：
 Android 侧：
 
 - Android 5.0+。
-- 设备和主机在同一局域网，或可通过 `adb reverse` 访问。
+- 推荐设备和主机在同一局域网；这是脱离 USB 线长期摆放的默认方式。
+- `adb reverse` 只适合临时调试，正式 Sidecar 展示不要依赖它。
 - 新版 Android 需要允许明文 HTTP；模板已设置 `android:usesCleartextTraffic="true"`。
 
 ## 一键部署
@@ -42,7 +43,7 @@ python3 scripts/deploy_side_display.py --target ./workspace --device <adb-serial
 脚本会做这些事：
 
 1. 把 `assets/android-side-display/` 复制到目标目录。
-2. 自动检测局域网 IP，并写入 `MainActivity.java` 的 `BASE_URLS`。
+2. 自动检测主机当前默认网络接口的局域网 IP，并写入 `MainActivity.java` 的 `BASE_URLS`。
 3. 修正 LaunchAgent plist 中的工作目录、日志路径和 `status_server.py` 路径。
 4. 启动或重启 sidecar。
 5. 构建 `build/HelloWorld.apk`。
@@ -103,7 +104,14 @@ curl http://127.0.0.1:8765/status
 curl http://<host-ip>:8765/status
 ```
 
-如果本机通但 Android 不通，检查设备是否和主机在同一 Wi-Fi，或尝试 USB 反向代理：
+如果本机通但 Android 不通，先检查设备是否和主机在同一 Wi-Fi，并从 Android 侧测试主机 IP：
+
+```bash
+adb -s <serial> shell ping -c 3 <host-ip>
+adb -s <serial> reverse --list
+```
+
+`reverse --list` 应为空，才能确认当前不是靠 USB 端口转发。只有临时调试时才使用 USB 反向代理：
 
 ```bash
 adb -s <serial> reverse tcp:8765 tcp:8765

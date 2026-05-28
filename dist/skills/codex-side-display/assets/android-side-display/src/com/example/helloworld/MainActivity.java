@@ -71,7 +71,9 @@ public class MainActivity extends Activity {
     private TextView codexScaleValue;
     private TextView usagePercentValue;
     private TextView topTimeValue;
+    private TextView topDateValue;
     private TextView topBatteryValue;
+    private BatteryPillView topBatteryIcon;
     private ImageView topSourceIcon;
     private TextView topSourceNameValue;
     private PlaybackButtonView playPauseButton;
@@ -209,21 +211,37 @@ public class MainActivity extends Activity {
         View topSpacer = new View(this);
         topBar.addView(topSpacer, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1));
 
-        topTimeValue = terminalText("--:--", TEXT, 17, false);
-        topTimeValue.setGravity(Gravity.RIGHT);
-        topBar.addView(topTimeValue, new LinearLayout.LayoutParams(dp(120), LinearLayout.LayoutParams.WRAP_CONTENT));
+        LinearLayout topStatusRow = new LinearLayout(this);
+        topStatusRow.setOrientation(LinearLayout.HORIZONTAL);
+        topStatusRow.setGravity(Gravity.RIGHT | Gravity.CENTER_VERTICAL);
+        topBar.addView(topStatusRow, new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.MATCH_PARENT));
 
-        TextView dateValue = terminalText(
-                new SimpleDateFormat("  EEE MM/dd", Locale.US).format(new Date()).toUpperCase(Locale.US),
+        topTimeValue = terminalText("--:--", TEXT, 19, false);
+        topTimeValue.setGravity(Gravity.RIGHT | Gravity.CENTER_VERTICAL);
+        topStatusRow.addView(topTimeValue, new LinearLayout.LayoutParams(dp(86), LinearLayout.LayoutParams.WRAP_CONTENT));
+
+        addStatusDivider(topStatusRow);
+
+        topDateValue = terminalText(
+                new SimpleDateFormat("EEE MM/dd", Locale.US).format(new Date()).toUpperCase(Locale.US),
                 MUTED,
                 12,
                 false);
-        dateValue.setGravity(Gravity.RIGHT);
-        topBar.addView(dateValue, new LinearLayout.LayoutParams(dp(120), LinearLayout.LayoutParams.WRAP_CONTENT));
+        topDateValue.setGravity(Gravity.CENTER);
+        topStatusRow.addView(topDateValue, new LinearLayout.LayoutParams(dp(104), LinearLayout.LayoutParams.WRAP_CONTENT));
 
-        topBatteryValue = terminalText("▭ --%", TEXT, 12, false);
-        topBatteryValue.setGravity(Gravity.RIGHT);
-        topBar.addView(topBatteryValue, new LinearLayout.LayoutParams(dp(90), LinearLayout.LayoutParams.WRAP_CONTENT));
+        addStatusDivider(topStatusRow);
+
+        topBatteryIcon = new BatteryPillView(this);
+        LinearLayout.LayoutParams batteryIconParams = new LinearLayout.LayoutParams(dp(28), dp(14));
+        batteryIconParams.setMargins(0, 0, dp(8), 0);
+        topStatusRow.addView(topBatteryIcon, batteryIconParams);
+
+        topBatteryValue = terminalText("--%", TEXT, 12, false);
+        topBatteryValue.setGravity(Gravity.RIGHT | Gravity.CENTER_VERTICAL);
+        topStatusRow.addView(topBatteryValue, new LinearLayout.LayoutParams(dp(48), LinearLayout.LayoutParams.WRAP_CONTENT));
 
         LinearLayout mainRow = new LinearLayout(this);
         mainRow.setOrientation(portrait ? LinearLayout.VERTICAL : LinearLayout.HORIZONTAL);
@@ -263,7 +281,7 @@ public class MainActivity extends Activity {
         nowHeader.setGravity(Gravity.CENTER_VERTICAL);
         nowPanel.addView(nowHeader, wrap());
 
-        playbackValue = terminalText(">  NOW PLAYING", GREEN, 12, true);
+        playbackValue = terminalText("01  NOW PLAYING", GREEN, 12, true);
         playbackValue.setSingleLine(true);
         nowHeader.addView(playbackValue, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
 
@@ -297,7 +315,7 @@ public class MainActivity extends Activity {
                 : new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1);
         infoColumn.addView(usagePanel, usageParams);
 
-        addPanelHeader(usagePanel, ">  CODEX USAGE", "5.1 - 5.31");
+        addPanelHeader(usagePanel, "02  CODEX USAGE", "5.1 - 5.31");
         addSpacer(usagePanel, 22);
 
         TextView totalLabel = terminalText("Total Tokens", MUTED, 12, false);
@@ -472,7 +490,14 @@ public class MainActivity extends Activity {
             }
             powerValue.setText((charging ? "charging, keep screen on" : "not charging, screen may sleep") + " (" + percent + ")");
             if (topBatteryValue != null) {
-                topBatteryValue.setText((charging ? "▰ " : "▭ ") + percent);
+                topBatteryValue.setText(percent);
+            }
+            if (topBatteryIcon != null) {
+                int batteryPercent = 0;
+                if (level >= 0 && scale > 0) {
+                    batteryPercent = Math.max(0, Math.min(100, Math.round(level * 100.0f / scale)));
+                }
+                topBatteryIcon.setBattery(batteryPercent, charging);
             }
         }
     }
@@ -547,6 +572,14 @@ public class MainActivity extends Activity {
         rightView.setGravity(Gravity.RIGHT | Gravity.CENTER_VERTICAL);
         rightView.setSingleLine(true);
         row.addView(rightView, new LinearLayout.LayoutParams(dp(110), LinearLayout.LayoutParams.WRAP_CONTENT));
+
+        View rule = new View(this);
+        rule.setBackgroundColor(Color.rgb(53, 52, 46));
+        LinearLayout.LayoutParams ruleParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                Math.max(1, dp(1)));
+        ruleParams.setMargins(0, dp(10), 0, 0);
+        parent.addView(rule, ruleParams);
     }
 
     private LimitStatusRow addLimitRow(LinearLayout parent, String label, String rightText) {
@@ -630,6 +663,16 @@ public class MainActivity extends Activity {
                 dp(heightDp)));
     }
 
+    private void addStatusDivider(LinearLayout parent) {
+        View divider = new View(this);
+        divider.setBackgroundColor(Color.rgb(67, 64, 55));
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                Math.max(1, dp(1)),
+                dp(22));
+        params.setMargins(dp(14), 0, dp(14), 0);
+        parent.addView(divider, params);
+    }
+
     private LinearLayout.LayoutParams wrap() {
         return new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
@@ -646,9 +689,9 @@ public class MainActivity extends Activity {
 
     private GradientDrawable blockBackground() {
         GradientDrawable drawable = new GradientDrawable();
-        drawable.setColor(Color.argb(88, 24, 26, 25));
-        drawable.setCornerRadius(dp(6));
-        drawable.setStroke(dp(1), Color.rgb(54, 52, 46));
+        drawable.setColor(Color.rgb(24, 26, 25));
+        drawable.setCornerRadius(dp(4));
+        drawable.setStroke(dp(1), Color.rgb(61, 58, 50));
         return drawable;
     }
 
@@ -846,6 +889,9 @@ public class MainActivity extends Activity {
         if (topTimeValue != null) {
             topTimeValue.setText(new SimpleDateFormat("HH:mm", Locale.US).format(new Date()));
         }
+        if (topDateValue != null) {
+            topDateValue.setText(new SimpleDateFormat("EEE MM/dd", Locale.US).format(new Date()).toUpperCase(Locale.US));
+        }
         renderSpotify(spotify);
         renderAccountUsage(json, usage);
         updatedValue.setText("Updated: " + shortSession(codexText(codex, "updated_at_local")));
@@ -1024,7 +1070,7 @@ public class MainActivity extends Activity {
     private void updatePlaybackBadge(String state, boolean active) {
         boolean playing = "playing".equalsIgnoreCase(state);
         if (playbackValue != null) {
-            playbackValue.setText(playing ? ">  NOW PLAYING" : active ? ">  PAUSED" : ">  NO SOURCE");
+            playbackValue.setText(playing ? "01  NOW PLAYING" : active ? "01  PAUSED" : "01  NO SOURCE");
             playbackValue.setTextColor(active ? GREEN : MUTED);
             playbackValue.setBackground(null);
         }
@@ -1418,6 +1464,56 @@ public class MainActivity extends Activity {
                 return text.substring(0, text.length() - 2);
             }
             return text;
+        }
+    }
+
+    private static class BatteryPillView extends View {
+        private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        private final RectF rect = new RectF();
+        private final float density;
+        private int percent;
+        private boolean charging;
+
+        public BatteryPillView(Context context) {
+            super(context);
+            density = context.getResources().getDisplayMetrics().density;
+        }
+
+        public void setBattery(int percent, boolean charging) {
+            this.percent = Math.max(0, Math.min(100, percent));
+            this.charging = charging;
+            invalidate();
+        }
+
+        @Override
+        protected void onDraw(Canvas canvas) {
+            super.onDraw(canvas);
+            float width = getWidth();
+            float height = getHeight();
+            float capWidth = Math.max(2.0f * density, width * 0.10f);
+            float bodyRight = width - capWidth - 1.0f * density;
+            float top = height * 0.20f;
+            float bottom = height * 0.80f;
+            float radius = (bottom - top) * 0.28f;
+
+            paint.setStyle(Paint.Style.STROKE);
+            paint.setStrokeWidth(Math.max(1.0f, density));
+            paint.setColor(Color.rgb(153, 145, 120));
+            rect.set(0.5f * density, top, bodyRight, bottom);
+            canvas.drawRoundRect(rect, radius, radius, paint);
+
+            paint.setStyle(Paint.Style.FILL);
+            paint.setColor(Color.rgb(153, 145, 120));
+            rect.set(bodyRight + 1.0f * density, height * 0.36f, width - 0.5f * density, height * 0.64f);
+            canvas.drawRoundRect(rect, 1.0f * density, 1.0f * density, paint);
+
+            float inset = 2.0f * density;
+            float fillWidth = Math.max(0, (bodyRight - inset * 2) * percent / 100.0f);
+            if (fillWidth > 0) {
+                paint.setColor(charging ? GREEN : BAR);
+                rect.set(0.5f * density + inset, top + inset, 0.5f * density + inset + fillWidth, bottom - inset);
+                canvas.drawRoundRect(rect, Math.max(1.0f, radius - inset), Math.max(1.0f, radius - inset), paint);
+            }
         }
     }
 

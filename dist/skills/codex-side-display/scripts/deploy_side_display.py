@@ -30,6 +30,12 @@ def detect_host():
     if env_host:
         return env_host
     if sys.platform == "darwin":
+        default_route = capture(["route", "-n", "get", "default"])
+        match = re.search(r"interface:\s*(\S+)", default_route)
+        if match:
+            value = capture(["ipconfig", "getifaddr", match.group(1)])
+            if value:
+                return value
         for iface in ("en0", "en1"):
             value = capture(["ipconfig", "getifaddr", iface])
             if value:
@@ -104,6 +110,22 @@ def choose_device(adb, requested):
     raise SystemExit("没有检测到可用 Android 设备，请检查 adb devices。")
 
 
+def warn_about_reverse(adb, serial, port):
+    result = capture([adb, "-s", serial, "reverse", "--list"])
+    if "tcp:%d" % port in result:
+        print("警告：设备存在 adb reverse tcp:%d；局域网验证前建议移除它。" % port)
+        print("      运行：%s -s %s reverse --remove tcp:%d" % (adb, serial, port))
+
+
+def warn_about_lan(adb, serial, host):
+    if host.startswith("127.") or host == "localhost":
+        print("警告：当前写入的是本机回环地址，Android 脱离 USB 后无法访问。")
+        return
+    result = capture([adb, "-s", serial, "shell", "ping", "-c", "1", "-W", "2", host])
+    if "1 received" not in result and "1 packets received" not in result:
+        print("警告：Android 设备没有 ping 通主机 %s；请确认二者在同一 Wi-Fi，且路由器未开启客户端隔离。" % host)
+
+
 def main():
     parser = argparse.ArgumentParser(description="部署 Codex Android 侧屏与本地 sidecar。")
     parser.add_argument("--target", default="./codex-side-display-workspace", help="复制模板项目的目标目录")
@@ -131,6 +153,8 @@ def main():
 
     if not args.skip_install:
         serial = choose_device(args.adb, args.device)
+        warn_about_reverse(args.adb, serial, args.port)
+        warn_about_lan(args.adb, serial, host)
         apk = target / "build" / "HelloWorld.apk"
         run([args.adb, "-s", serial, "install", "-r", str(apk)])
         run([args.adb, "-s", serial, "shell", "am", "force-stop", "com.example.helloworld"], check=False)
